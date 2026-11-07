@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Business Ledger</title>
+<style>
+:root{--bg:#eef1fb;--fg:#1b2238;--mut:#6b7489;--card:#fff;--bd:#e1e5f2;--ac:#4f46e5;--ac2:#7c3aed;--acf:#fff;--ok:#059669;--bad:#e11d48;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1220;--fg:#e8eaf6;--mut:#9aa3bd;--card:#1a1e33;--bd:#2c3250;--ac:#818cf8;--ac2:#a78bfa;--acf:#0f1220;--ok:#34d399;--bad:#fb7185}}
+:root[data-theme="dark"]{--bg:#0f1220;--fg:#e8eaf6;--mut:#9aa3bd;--card:#1a1e33;--bd:#2c3250;--ac:#818cf8;--ac2:#a78bfa;--acf:#0f1220;--ok:#34d399;--bad:#fb7185}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;min-height:100vh}
+header{background:linear-gradient(120deg,var(--ac),var(--ac2));color:var(--acf);padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:18px;font-weight:600;border-radius:0 0 20px 20px;box-shadow:0 6px 20px rgba(79,70,229,.25)}
+header button{background:rgba(255,255,255,.2);color:#fff;border:0;border-radius:20px;padding:7px 14px}
+main{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:21px;margin:4px 0 14px}h2{font-size:15px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(30,40,90,.06)}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--fg);font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);border-color:transparent}
+label{font-size:12px;color:var(--mut);display:block;margin-bottom:3px;font-weight:600}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;align-items:end}
+button{padding:9px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--fg);font:inherit;cursor:pointer}
+button.p{background:linear-gradient(120deg,var(--ac),var(--ac2));color:#fff;border:0;font-weight:600}button.d{color:var(--bad)}button.on{background:var(--ac);color:var(--acf);border-color:var(--ac)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.tile{background:var(--card);border-radius:18px;padding:20px 14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 14px rgba(30,40,90,.08);border:1px solid var(--bd)}
+.tile .ic{font-style:normal;font-size:26px;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff}
+.tile:nth-child(1) .ic{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.tile:nth-child(2) .ic{background:linear-gradient(135deg,#0ea5e9,#2563eb)}.tile:nth-child(3) .ic{background:linear-gradient(135deg,#14b8a6,#059669)}.tile:nth-child(4) .ic{background:linear-gradient(135deg,#f59e0b,#ea580c)}.tile:nth-child(5) .ic{background:linear-gradient(135deg,#ec4899,#be185d)}.tile:nth-child(6) .ic{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}.tile:nth-child(7) .ic{background:linear-gradient(135deg,#22c55e,#15803d)}.tile:nth-child(8) .ic{background:linear-gradient(135deg,#64748b,#334155)}.tile:nth-child(9) .ic{background:linear-gradient(135deg,#06b6d4,#0e7490)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 6px;border-top:1px solid var(--bd);cursor:pointer;border-radius:10px}
+.row:first-child{border-top:0}.row:hover{background:var(--bg)}.mut{color:var(--mut);font-size:13px}
+.w{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{font-size:12px;color:var(--mut);background:var(--bg)}tr:nth-child(even) td{background:rgba(120,130,200,.05)}
+.pos{color:var(--ok);font-weight:600}.neg{color:var(--bad);font-weight:600}.big{font-size:28px;font-weight:800}
+.h{padding:8px 0;border-top:1px solid var(--bd);font-size:13px}
+.kb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.kb button{padding:16px;font-size:18px}
+#md{display:none;position:fixed;inset:0;background:rgba(10,12,30,.55);z-index:20}.mb{max-width:380px;margin:20vh auto 0;padding:14px}
+#tt{display:none;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:20px;z-index:30;max-width:90%}
+.login{max-width:380px;margin:12vh auto 0;padding:14px}
+.tile:nth-child(10) .ic{background:linear-gradient(135deg,#f97316,#c2410c)}.tile:nth-child(11) .ic{background:linear-gradient(135deg,#475569,#1e293b)}
+header button{font-size:15px}#pr{display:none}.ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;margin-bottom:12px;padding-bottom:6px}.ph h2{font-size:22px;margin:0}
+.badge{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:bold;display:inline-block}
+.badge-on{background:rgba(5,150,105,.15);color:var(--ok)}.badge-off{background:rgba(107,116,137,.15);color:var(--mut)}
+@media print{body{background:#fff!important;color:#000!important}#app,#md,#tt{display:none!important}#pr{display:block;color:#000;background:#fff;font-size:12px}#pr .card{border:0;box-shadow:none;padding:0 0 10px;background:#fff}#pr table{min-width:0}#pr th,#pr td{padding:4px 6px;border:1px solid #999;color:#000;background:#fff!important}#pr .w{overflow:visible}#pr .neg,#pr .pos,#pr .mut{color:#000!important}#pr tr{page-break-inside:avoid}@page{margin:12mm}}
+</style></head><body><div id="app"></div><div id="md"></div><div id="tt"></div><div id="pr"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+function T(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+var K='ledger_v1',S={customers:[],sbd:[],sdh:[],work:[],history:[]},V={v:'home',k:'c',p:null,e:null,q:'',d:T(),t:'c',m:T().slice(0,7),wp:null};
+try{var r=JSON.parse(localStorage.getItem(K));if(r&&r.customers)S=r}catch(x){}
+function norm(){['customers','sbd','sdh','work','history'].forEach(function(k){S[k]=S[k]||[]})}
+norm();
+var LK={c:'customers',b:'sbd',h:'sdh'},TT={c:'Customers',b:'Supplier BD',h:'Supplier DH'},U={c:'SAR',b:'TK',h:''},CH={c:['SAR','Deposit'],b:['TK','Deduction (TK)'],h:['Amount','Payment']};
+var BANKS=['Sonali Bank','Janata Bank','Agrani Bank','Rupali Bank','Bangladesh Krishi Bank','BASIC Bank','Islami Bank Bangladesh','Dutch-Bangla Bank','BRAC Bank','City Bank','Eastern Bank','Prime Bank','Pubali Bank','Uttara Bank','Mutual Trust Bank','One Bank','Southeast Bank','Standard Chartered','HSBC','Social Islami Bank','AB Bank','NCC Bank','Jamuna Bank','Trust Bank','Bank Asia','Mercantile Bank','Midland Bank','Dhaka Bank','NRB Bank','Shahjalal Islami Bank','First Security Islami Bank','Al-Arafah Islami Bank','EXIM Bank','Union Bank','Premier Bank','bKash','Nagad','Rocket'];
+var MY_DEVICE_ID = localStorage.getItem('ledger_dev_id') || id();
+localStorage.setItem('ledger_dev_id', MY_DEVICE_ID);
+
+function $(i){return document.getElementById(i)}
+function prune(){var l=Date.now()-2*365.25*864e5;S.history=S.history.filter(function(x){return new Date(x.t).getTime()>=l})}
+function log(t,pid){norm();S.history.unshift({t:new Date().toISOString(),c:pid||null,x:t});prune();save()}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function f(n){return Number(n).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function L(k){norm();return S[LK[k]]||[]}
+function P(k,i){return L(k).find(function(p){return p.id===i})}
+function amt(k,t){var a=parseFloat(t.desc)||0,r=parseFloat(t.rate)||0;return k==='c'?(a>0&&r>0?Math.round(a/r):0):Math.round(a*r*100)/100}
+function wt(t,pid,d){norm();return S.work.filter(function(w){return w.k===t&&w.pid===pid&&w.date===d}).reduce(function(a,w){return a+w.amt},0)}
+function rows(k,p){norm();var it=(p.tx||[]).map(function(t){return{date:t.date,desc:t.desc,rate:t.rate,a:amt(k,t),d:parseFloat(t.dep)||0,id:t.id}});
+ if(k==='b')S.work.filter(function(w){return w.k==='s'&&w.pid===p.id}).forEach(function(w){it.push({date:w.date,desc:'Work - '+w.bank+(w.name?' ('+w.name+')':''),rate:'',a:0,d:w.amt,w:1})});
+ it.sort(function(x,z){return x.date<z.date?-1:x.date>z.date?1:0});var b=0;return it.map(function(x){b+=x.a-x.d;x.bal=b;return x})}
+function total(k,p){var R=rows(k,p);return R.length?R[R.length-1].bal:0}
+
+function go(v,k,p){
+ if(ST.pins && ST.pins[v]){
+  verifyOptionPin(v, function(){
+   V.v=v;if(k)V.k=k;if(p)V.p=p;V.e=null;V.q='';V.wp=null;render();
+  });
+  return;
+ }
+ V.v=v;if(k)V.k=k;if(p)V.p=p;V.e=null;V.q='';V.wp=null;render();
+}
+
+function sq(v){V.q=v;var el=$('lst');if(el)el.innerHTML=LH()}
+function srch(){return '<input placeholder="Search..." oninput="sq(this.value)" style="margin-bottom:10px">'}
+function tbl(k,R,ed,pid){pid=pid||V.p;return '<div class="w"><table><tr><th>Date</th><th>Description</th><th>Rate</th><th>'+CH[k][0]+'</th><th>'+CH[k][1]+'</th><th>Balance</th>'+(ed?'<th></th>':'')+'</tr>'+(R.map(function(x){var w=(k==='h'?0:wt(k==='b'?'s':'c',pid,x.date));
+ return '<tr><td>'+esc(x.date)+'</td><td>'+esc(x.desc)+(w&&!x.w?' <span class="mut">(Work total '+f(w)+')</span>':'')+'</td><td>'+esc(x.rate)+'</td><td>'+(x.a?f(x.a):'')+'</td><td>'+(x.d?f(x.d):'')+'</td><td><b>'+f(x.bal)+'</b></td>'+(ed?'<td>'+(x.w?'':'<button onclick="V.e=\''+x.id+'\';render()">Edit</button> <button class="d" onclick="delT(\''+x.id+'\')">X</button>')+'</td>':'')+'</tr>'}).join('')||'<tr><td colspan="7" class="mut">No entries.</td></tr>')+'</table></div>'}
+function hist(pid){norm();var q=V.q.toLowerCase(),H=S.history.filter(function(x){return(!pid||x.c===pid)&&(!q||x.x.toLowerCase().indexOf(q)>-1)});
+ return H.length?H.map(function(x){return '<div class="h"><span class="mut">'+new Date(x.t).toLocaleString()+'</span><br>'+esc(x.x)+'</div>'}).join(''):'<span class="mut">No changes found.</span>'}
+function LH(){norm();var q=V.q.toLowerCase(),v=V.v,k=V.k;
+ if(v==='list')return L(k).filter(function(p){return(p.name+' '+p.phone+' '+p.desc).toLowerCase().indexOf(q)>-1}).map(function(p){var b=total(k,p),w=k==='h'?0:wt(k==='b'?'s':'c',p.id,T());
+  return '<div class="row" onclick="go(\'party\',\''+k+'\',\''+p.id+'\')"><div><b>'+esc(p.name)+'</b><div class="mut">'+esc(p.phone)+' '+esc(p.desc)+(w?' | Work today: '+f(w):'')+'</div></div><div class="'+(b>0?'neg':'pos')+'">'+f(b)+' '+U[k]+'</div></div>'}).join('')||'<span class="mut">Nothing found.</span>';
+ if(v==='hist')return hist();
+ if(v==='work'){
+  if(!V.wp){
+   var ps=L(V.t==='c'?'c':'b');
+   return ps.filter(function(p){return p.name.toLowerCase().indexOf(q)>-1}).map(function(p){
+    return '<div class="row" onclick="V.wp=\''+p.id+'\';render()"><div><b>'+esc(p.name)+'</b><div class="mut">'+esc(p.phone)+' '+esc(p.desc)+'</div></div><div class="mut">Select &rarr;</div></div>';
+   }).join('')||'<span class="mut">No entries found.</span>';
+  }
+  var t=V.t,tot={},sum=0,out=S.work.filter(function(w){return w.k===t&&w.pid===V.wp&&w.date===V.d}).map(function(w){var p=P(t==='c'?'c':'b',w.pid),n=p?p.name:'(deleted)';return{w:w,n:n}});
+  out.forEach(function(o){tot[o.n]=(tot[o.n]||0)+o.w.amt;sum+=o.w.amt});
+  return Object.keys(tot).map(function(n){return '<div class="h"><b>'+esc(n)+'</b> total '+f(tot[n])+out.filter(function(o){return o.n===n}).map(function(o){return '<div class="mut">'+(o.w.name?'<b>'+esc(o.w.name)+'</b> - ':'')+esc(o.w.bank)+': '+f(o.w.amt)+' <button class="d" onclick="delW(\''+o.w.id+'\')">X</button></div>'}).join('')+'</div>'}).join('')+'<div class="h"><b>Day total: '+f(sum)+'</b></div>';
+ }
+ if(v==='rep')return L(k).filter(function(p){return p.name.toLowerCase().indexOf(q)>-1}).map(function(p){var R=rows(k,p),mr=R.filter(function(x){return x.date.slice(0,7)===V.m}),pr=R.filter(function(x){return x.date.slice(0,7)<V.m}),ob=pr.length?pr[pr.length-1].bal:0,ca=0,cd=0;
+  mr.forEach(function(x){ca+=x.a;cd+=x.d});
+  return '<div class="card"><h2>'+esc(p.name)+'</h2><div class="mut">Opening '+f(ob)+' | '+CH[k][0]+' '+f(ca)+' | '+CH[k][1]+' '+f(cd)+' | <b>Closing '+f(ob+ca-cd)+'</b></div>'+tbl(k,mr,false,p.id)+'</div>'}).join('')||'<span class="mut">Nothing found.</span>';
+ return ''}
+
+function render(){
+ norm();
+ if(V.v==='login')return loginUI();
+ var v=V.v,k=V.k,h='<header><b>'+esc(ST.name)+'<small id="sy" style="font-weight:400;font-size:12px;margin-left:8px;opacity:.85">'+syt()+'</small></b><button onclick="pr0()">🖨</button><button onclick="go(\'set\')">⚙</button>'+(v!=='home'?'<button onclick="go(\'home\')">Menu</button>':'')+(AU&&(AU.currentUser)?'<button onclick="signOutUser()">Sign out</button>':'')+'</header><main>';
+ if(v==='home'){h+='<h1>Menu</h1><div class="tiles">'+[['Customer',"list",'c'],['Supplier BD',"list",'b'],['Supplier DH',"list",'h'],['Calculator',"calc"],['Work',"work"],['Report',"rep",'b'],['Total End Balance',"end"],['History',"hist"],['Backup',"bk"],['Print',"prn"],['Settings',"set"]].map(function(m){return '<div class="tile" onclick="go(\''+m[1]+'\''+(m[2]?',\''+m[2]+'\'':'')+')">'+'<i class="ic">'+(IC[m[0]]||'')+'</i><span>'+m[0]+'</span></div>'}).join('')+'</div>'}
+ else if(v==='list'){h+='<h1>'+TT[k]+'</h1><div class="card"><h2>Add</h2><div class="g"><div><label>Name</label><input id="n"></div><div><label>Mobile</label><input id="p" type="tel"></div><div><label>Description</label><input id="d"></div><button class="p" onclick="addP()">Add</button></div></div><div class="card">'+srch()+'<div id="lst">'+LH()+'</div></div>'}
+ else if(v==='party'){var p=P(k,V.p);
+  if(!p){V.v='list';render();return;}
+  var e=V.e?p.tx.find(function(t){return t.id===V.e}):null,R=rows(k,p);
+  h+='<div class="bar"><button onclick="go(\'list\',\''+k+'\')">Back</button><button onclick="editP()">Edit</button><button class="d" onclick="delP()">Delete Customer</button></div><h1>'+esc(p.name)+'</h1><div class="mut">'+esc(p.phone)+' '+esc(p.desc)+'</div><div class="card"><div class="mut">Balance</div><div class="big">'+f(total(k,p))+' '+U[k]+'</div></div>';
+  h+='<div class="card"><h2>'+(e?'Edit entry':'Add entry')+'</h2><div class="g"><div><label>Date</label><input id="dt" type="date" value="'+(e?e.date:T())+'"></div><div><label>Description (amount)</label><input id="ds" type="number" step="any" value="'+(e?esc(e.desc):'')+'" oninput="pv()"></div><div><label>Rate</label><input id="rt" type="number" step="any" value="'+(e?esc(e.rate):'')+'" oninput="pv()"></div><div><label>'+(k==='b'?'TK (Deduction)':'Deposit')+'</label><input id="dp" type="number" step="any" value="'+(e&&e.dep?esc(e.dep):'')+'"></div></div><div class="mut" id="pvw" style="margin:8px 0"></div><button class="p" onclick="saveT()">'+(e?'Save changes':'Add')+'</button> '+(e?'<button onclick="V.e=null;render()">Cancel</button>':'')+'</div>';
+  h+='<div class="card">'+tbl(k,R,true)+'</div><div class="card"><h2>History</h2>'+hist(p.id)+'</div>'}
+ else if(v==='calc'){h+='<h1>Calculator</h1><div class="card" style="max-width:340px"><input id="cd" readonly style="font-size:24px;text-align:right;margin-bottom:10px"><div class="kb">'+['C','%','⌫','/','7','8','9','*','4','5','6','-','1','2','3','+','(','0',')','.'].map(function(c){return '<button onclick="ck(\''+c+'\')">'+c+'</button>'}).join('')+'<button class="p" style="grid-column:span 4" onclick="ck(\'=\')">=</button></div></div>'}
+ else if(v==='work'){var t=V.t,ps=L(t==='c'?'c':'b'),selP=V.wp?P(t==='c'?'c':'b',V.wp):null;
+  h+='<h1>Work</h1><div class="bar"><button class="'+(t==='c'?'on':'')+'" onclick="V.t=\'c\';V.wp=null;render()">Customer</button><button class="'+(t==='s'?'on':'')+'" onclick="V.t=\'s\';V.wp=null;render()">Supplier BD</button></div>';
+  if(!V.wp){
+   h+='<div class="card"><h2>Select '+(t==='c'?'Customer':'Supplier BD')+'</h2>'+srch()+'<div id="lst">'+LH()+'</div></div>';
+  } else {
+   h+='<div class="bar"><button onclick="V.wp=null;render()">← Change Selection</button></div>';
+   h+='<div class="card"><h2>Add Work for: '+esc(selP?selP.name:'')+'</h2><div class="g">'+
+   '<div><label>1. Date</label><input id="wd" type="date" value="'+V.d+'" onchange="V.d=this.value;render()"></div>'+
+   '<div><label>2. Name</label><input id="wn" placeholder="Enter name"></div>'+
+   '<div><label>3. Bank</label><select id="wb">'+BANKS.map(function(b){return '<option>'+b+'</option>'}).join('')+'</select></div>'+
+   '<div><label>4. Amount</label><input id="wa" type="number" step="any"></div>'+
+   '<button class="p" onclick="addW()">Add Work Entry</button></div></div>'+
+   '<div class="card"><h2>Entries for '+V.d+'</h2>'+srch()+'<div id="lst">'+LH()+'</div></div>';
+  }
+ }
+ else if(v==='rep'){h+='<h1>Monthly Report</h1><div class="bar"><button class="'+(k==='b'?'on':'')+'" onclick="V.k=\'b\';render()">Supplier BD</button><button class="'+(k==='h'?'on':'')+'" onclick="V.k=\'h\';render()">Supplier DH</button><input type="month" value="'+V.m+'" onchange="V.m=this.value;render()" style="width:auto"></div>'+srch()+'<div id="lst">'+LH()+'</div>'}
+ else if(v==='end'){var s=0; var custs=S.customers||[];
+  h+='<h1>Total End Balance</h1><div class="card"><div class="mut">All customers (main ledger only)</div><div class="big" id="te">0.00 SAR</div></div><div class="card">'+custs.map(function(c){var b=total('c',c);s+=b;return '<div class="row" style="cursor:default"><span>'+esc(c.name)+'</span><span class="'+(b>0?'neg':'pos')+'">'+f(b)+' SAR</span></div>'}).join('')+'</div>';
+  setTimeout(function(){var el=$('te');if(el)el.textContent=f(s)+' SAR';},10);
+ }
+ else if(v==='hist'){h+='<h1>History</h1><p class="mut">Kept for 2 years.</p><div class="card">'+srch()+'<div id="lst">'+LH()+'</div></div>'}
+ else if(v==='set'){h+=setUI()}else if(v==='prn'){h+=prnUI()}
+ else{h+='<h1>Backup</h1><div class="card"><h2>Back up</h2><p class="mut">Copy this text and keep it safe. It holds everything.</p><textarea id="bt" rows="6" readonly onclick="this.select()">'+esc(JSON.stringify(S))+'</textarea><br><br><button class="p" onclick="cp()">Copy</button></div><div class="card"><h2>Restore</h2><p class="mut">Paste a backup. This replaces current data.</p><textarea id="rt2" rows="5"></textarea><br><br><button onclick="rest()">Restore</button></div>'}
+ $('app').innerHTML=h+'</main>';if(v==='party')pv();if(v==='calc')$('cd').value=C}
+
+var C='';
+function ck(c){if(c==='C')C='';else if(c==='⌫')C=C.slice(0,-1);else if(c==='='){if(!C)return;var s=C.replace(/%/g,'/100').replace(/(^|[^0-9.])0+(?=[0-9])/g,'$1');try{if(/^[0-9+\-*\/(). ]+$/.test(s)){var r=Function('return '+s)();C=isFinite(r)?String(Math.round(r*1e8)/1e8):'Error'}else C='Error'}catch(x){C='Error'}}else{if(C==='Error')C='';C+=c}var el=$('cd');if(el)el.value=C}
+function pv(){var a=$('pvw');if(a)a.textContent=(U[V.k]||'Amount')+': '+f(amt(V.k,{desc:$('ds').value,rate:$('rt').value}))}
+function addP(){var n=$('n').value.trim();if(!n){alert('Enter a name.');return}norm();var p={id:id(),name:n,phone:$('p').value.trim(),desc:$('d').value.trim(),tx:[]};L(V.k).push(p);log('Added '+TT[V.k]+': '+n+' / '+p.phone+' / '+p.desc,p.id);save();render()}
+function editP(){var k=V.k,p=P(k,V.p);ask([['Name',p.name],['Mobile',p.phone],['Description',p.desc]],function(v){log('Edited '+TT[k]+': '+p.name+' / '+p.phone+' / '+p.desc+' to '+v[0]+' / '+v[1]+' / '+v[2],p.id);p.name=v[0].trim()||p.name;p.phone=v[1];p.desc=v[2];save();render()})}
+function sd(k,t){var a=amt(k,t);return t.date+', amount '+(t.desc||0)+', rate '+(t.rate||0)+', '+CH[k][0]+' '+a+', '+CH[k][1]+' '+(t.dep||0)}
+function saveT(){var k=V.k,p=P(k,V.p),o={date:$('dt').value,desc:$('ds').value,rate:$('rt').value,dep:$('dp')?$('dp').value:''};
+ if(!o.date||(!o.desc&&!o.dep)){alert('Enter a date and an amount.');return}
+ if(V.e){var t=p.tx.find(function(x){return x.id===V.e});log('Edited entry for '+p.name+': ['+sd(k,t)+'] to ['+sd(k,o)+']',p.id);Object.assign(t,o)}
+ else{o.id=id();p.tx.push(o);log('Added entry for '+p.name+': '+sd(k,o),p.id)}
+ V.e=null;save();render()}
+function addW(){var pid=V.wp,wn=($('wn')?$('wn').value.trim():''),a=parseFloat($('wa').value);if(!V.d){alert('Pick a date.');return}if(!pid||!(a>0)){alert('Select an entity and enter an amount.');return}var k=V.t==='c'?'c':'b',p=P(k,pid);
+ norm();S.work.push({id:id(),k:V.t,pid:pid,date:V.d,name:wn,bank:$('wb').value,amt:a});log('Work entry ('+(V.t==='c'?'Customer':'Supplier BD')+') '+(p?p.name:'')+(wn?' ('+wn+')':'')+': date '+V.d+', bank '+$('wb').value+', amount '+a,pid);save();render()}
+function cp(){var t=$('bt');t.select();try{navigator.clipboard.writeText(t.value)}catch(x){document.execCommand('copy')}}
+var IC={'Customer':'👥','Supplier BD':'🏭','Supplier DH':'🚚','Calculator':'🧮','Work':'🛠️','Report':'📊','Total End Balance':'💰','History':'🕘','Backup':'💾','Print':'🖨️','Settings':'⚙️'};
+function alert(t){var m=$('tt');if(!m)return;m.textContent=t;m.style.display='block';setTimeout(function(){m.style.display='none'},3500)}
+function mdl(b,cb){var m=$('md');if(!m)return;m.innerHTML='<div class="mb"><div class="card">'+b+'<div class="bar" style="margin:14px 0 0"><button class="p" id="mo">OK</button><button id="mc">Cancel</button></div></div></div>';m.style.display='block';$('mc').onclick=function(){m.style.display='none'};$('mo').onclick=function(){m.style.display='none';cb()}}
+function yes(t,cb){if(ST.cf===false){cb();return}mdl('<p>'+esc(t)+'</p>',cb)}
+
+function delP(){
+ var k=V.k, p=P(k,V.p);
+ if(!p) return;
+ yes('Delete '+p.name+' and all entries?', function(){
+  verifyPin(function(){
+   log('Deleted '+TT[k]+' '+p.name+' ('+(p.tx?p.tx.length:0)+' entries)');
+   norm();
+   S[LK[k]] = S[LK[k]].filter(function(x){ return x.id !== p.id; });
+   S.work = S.work.filter(function(w){ return w.pid !== p.id; });
+   save();
+   V.p = null;
+   V.v = 'list';
+   render();
+  });
+ });
+}
+
+function delT(i){var k=V.k,p=P(k,V.p),t=p.tx.find(function(x){return x.id===i});yes('Delete this entry?',function(){log('Deleted entry for '+p.name+': '+sd(k,t),p.id);p.tx=p.tx.filter(function(x){return x.id!==i});save();render()})}
+function delW(i){norm();var w=S.work.filter(function(x){return x.id!==i}),p=P(w.k==='c'?'c':'b',w.pid);yes('Delete this work entry?',function(){log('Deleted work entry '+(p?p.name:'')+': date '+w.date+', bank '+w.bank+', amount '+w.amt,w.pid);S.work=S.work.filter(function(x){return x.id!==i});save();render()})}
+function ask(fs,cb){mdl(fs.map(function(x,i){return '<label>'+x[0]+'</label><input id="q'+i+'" value="'+esc(x[1])+'" style="margin-bottom:8px">'}).join(''),function(){cb(fs.map(function(x,i){var el=$('q'+i);return el?el.value:''}))})}
+
+var ST={name:'Business Ledger',theme:'auto',cf:true,keep:24,bank:'',sync:true,pins:{},optionPins:{},fb:{apiKey:"AIzaSyCAe_Ih-WIjek0WL9wgWbnlkbI357Y_7gk",authDomain:"business-app-47b1c.firebaseapp.com",databaseURL:"https://business-app-47b1c-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"business-app-47b1c",storageBucket:"business-app-47b1c.firebasestorage.app",messagingSenderId:"1058648111292",appId:"1:1058648111292:web:c2d15ae69ce6c41983f8b9"}};
+try{var _s=JSON.parse(localStorage.getItem('ledger_set'));if(_s)Object.assign(ST,_s)}catch(x){}
+var FBD=JSON.parse(JSON.stringify(ST.fb)),LT=+localStorage.getItem('ledger_t')||0,SY='Local',TM=null,PR=0,PV={w:'ledger',k:'c',p:'',from:'',to:'',m:T().slice(0,7),d:T(),t:'c'};
+
+function sset(k,v){
+ ST[k]=v;
+ try{localStorage.setItem('ledger_set',JSON.stringify(ST))}catch(x){}
+ applyTheme();
+ document.title=ST.name;
+ if(DBS) DBS.set(ST);
+ render();
+}
+
+function applyTheme(){var r=document.documentElement;if(ST.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',ST.theme)}
+function syt(){return '● '+SY}
+function setSY(s){SY=s;['sy','sy2'].forEach(function(i){var e=$(i);if(e)e.textContent=i==='sy'?syt():s})}
+function prune(){norm();var l=Date.now()-ST.keep*30.44*864e5;S.history=S.history.filter(function(x){return new Date(x.t).getTime()>=l})}
+function hasData(){norm();return S.customers.length||S.sbd.length||S.sdh.length||S.work.length}
+function save(){LT=Date.now();norm();try{localStorage.setItem(K,JSON.stringify(S));localStorage.setItem('ledger_t',LT)}catch(x){}clearTimeout(TM);TM=setTimeout(push,250)}
+function push(){if(!DB||!AU||!AU.currentUser||!ST.sync)return;setSY('Syncing…');DB.set({json:JSON.stringify(S),t:LT}).then(function(){setSY('Synced')}).catch(function(e){setSY('Sync error');alert('Sync failed: '+e.message)})}
+function adopt(d){try{var n=JSON.parse(d.json);if(!n||!n.customers)throw 0;S=n;norm();LT=d.t||Date.now();localStorage.setItem(K,JSON.stringify(S));localStorage.setItem('ledger_t',LT);return true}catch(x){alert('Cloud data could not be read.');return false}}
+var _r0=render;render=function(){if(V.v==='party'&&!P(V.k,V.p))V.v='list';_r0();if(V.v==='work'&&ST.bank&&$('wb'))$('wb').value=ST.bank;window.scrollTo(0,0)};
+document.addEventListener('focusout',function(){if(PR)setTimeout(function(){var md=$('md');if(!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)&&md&&md.style.display!=='block'){PR=0;render()}},250)});
+function onSnap(sn){var d=sn.val();if(!d||!d.json){push();return}
+ if(d.t===LT){setSY('Synced');return}
+ if(d.t>LT){if(!LT&&hasData()){try{localStorage.setItem('ledger_prev',JSON.stringify(S))}catch(x){}}if(adopt(d)){setSY('Synced');rer()}}else push()}
+function rer(){var md=$('md');if(/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)||(md&&md.style.display==='block')){PR=1}else render()}
+
+var DB=null,AU=null,DBUS=null,DEVS=null,DBS=null,DBPR=null,CURRENT_PIN='';
+function fbInit(){
+ applyTheme();var c=ST.fb;
+ if(!ST.sync||!c||!c.apiKey||!c.databaseURL||typeof firebase==='undefined'){setSY(ST.sync?'Offline':'Sync off');render();return}
+ try{if(!firebase.apps.length)firebase.initializeApp(c)}catch(e){alert('Firebase config error: '+e.message);render();return}
+ AU=firebase.auth();DB=firebase.database().ref('ledger/main');DBUS=firebase.database().ref('ledger/users');DEVS=firebase.database().ref('ledger/devices');DBS=firebase.database().ref('ledger/settings');DBPR=firebase.database().ref('ledger/pinRequests');
+ 
+ DBS.on('value', function(snapshot){
+  var val = snapshot.val();
+  if(val){
+   var oldPins = JSON.stringify(ST.pins || {});
+   Object.assign(ST, val);
+   applyTheme();
+   document.title = ST.name;
+   try{localStorage.setItem('ledger_set',JSON.stringify(ST))}catch(x){}
+   
+   if(V.v && ST.pins && ST.pins[V.v]){
+    var md=$('md'); if(md) md.style.display='none';
+    V.v = 'home';
+    alert('Access PIN was set/updated for this section. Returning to menu.');
+   }
+   render();
+  }
+ });
+
+ firebase.database().ref('.info/connected').on('value',function(s){
+  if(AU.currentUser&&SY!=='Syncing…')setSY(s.val()?'Online':'Offline');
+  if(AU.currentUser && MY_DEVICE_ID){
+   DBUS.child(AU.currentUser.uid).once('value', function(uSnap){
+    var uname = (uSnap.val()&&uSnap.val().username) ? uSnap.val().username : 'User';
+    DEVS.child(AU.currentUser.uid).child(MY_DEVICE_ID).update({
+     username: uname,
+     online: s.val(),
+     lastSeen: Date.now(),
+     ua: navigator.userAgent
+    });
+   });
+   DEVS.child(AU.currentUser.uid).child(MY_DEVICE_ID).onDisconnect().update({online:false, lastSeen:Date.now()});
+  }
+ });
+ var un=null;
+ AU.onAuthStateChanged(function(u){
+  if(un){un();un=null}
+  if(!u){setSY('Not signed in');V.v='login';render();return}
+  DBUS.child(u.uid).on('value', function(snap){
+   var userData = snap.val();
+   if(!userData){
+    alert('Your account record was deleted by an administrator.');
+    AU.signOut();
+    return;
+   }
+   if(userData.verified === false){
+    alert('Your account has been set to pending verification by an administrator.');
+    AU.signOut();
+    return;
+   }
+   CURRENT_PIN = userData.pin || '';
+  });
+
+  if(MY_DEVICE_ID){
+   DEVS.child(u.uid).child(MY_DEVICE_ID).on('value', function(dSnap){
+    if(!dSnap.exists() && AU.currentUser){
+     alert('This device session was logged out remotely. You can sign in back anytime.');
+     AU.signOut();
+    }
+   });
+  }
+  
+  DBPR.child(u.uid).on('value', function(snap){
+   var req = snap.val();
+   if(req && req.status === 'approved'){
+    CURRENT_PIN = '';
+    ST.pins = {}; ST.optionPins = {};
+    sset('pins', ST.pins); sset('optionPins', ST.optionPins);
+    DBPR.child(u.uid).remove();
+    alert('Admin approved PIN reset! PIN has been cleared.');
+    var m=$('md'); if(m) m.style.display='none';
+    render();
+   }
+  });
+
+  if(V.v==='login')V.v='home';
+  setSY('Connecting…');
+  DB.on('value',onSnap,function(e){setSY('Sync error');alert('Sync error: '+e.message)});
+  un=function(){DB.off('value',onSnap)};
+  render();
+ });
+}
+
+function loginUI(){
+ $('app').innerHTML='<div class="login"><div class="card"><h1>'+esc(ST.name)+'</h1>'+
+ '<label>Username</label><input id="le" type="text" autocomplete="username"><br><br>'+
+ '<label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key===\'Enter\')signIn()"><br><br>'+
+ '<button class="p" onclick="signIn()">Sign in</button>'+
+ '<div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:10px">'+
+ '<p class="mut" style="margin:0 0 6px">Don\'t have an account?</p>'+
+ '<button onclick="regUI()">Register new account</button></div>'+
+ '</div></div>';
+}
+
+function regUI(){
+ $('app').innerHTML='<div class="login"><div class="card"><h1>Register Account</h1>'+
+ '<label>Username</label><input id="re_user" type="text"><br><br>'+
+ '<label>Password</label><input id="re_pass" type="password"><br><br>'+
+ '<button class="p" onclick="registerUser()">Create Account</button> <button onclick="go(\'login\')">Back to Sign In</button></div></div>';
+}
+
+function registerUser(){
+ var user=$('re_user').value.trim(), pass=$('re_pass').value;
+ if(!user||!pass){alert('Please fill out username and password.');return}
+ var dummyEmail = user.toLowerCase().replace(/[^a-z0-9]/g,'') + '@ledger.local';
+
+ DBUS.orderByChild('username').equalTo(user).once('value', function(snapshot){
+  if(snapshot.exists()){
+   var existingUser = Object.values(snapshot.val())[0];
+   if(existingUser && existingUser.verified !== false){
+    alert('Username is already taken and active. Please choose another username.');
+    return;
+   }
+  }
+  AU.createUserWithEmailAndPassword(dummyEmail, pass).then(function(res){
+   var uid=res.user.uid;
+   DBUS.child(uid).set({username:user, pin:'', email:dummyEmail, verified: false});
+   alert('Account created! An admin must verify your account before access is granted.');
+   AU.signOut();
+   go('login');
+  }).catch(function(e){
+   if(e.code === 'auth/email-already-in-use'){
+    AU.signInWithEmailAndPassword(dummyEmail, pass).then(function(res){
+     var uid=res.user.uid;
+     DBUS.child(uid).set({username:user, pin:'', email:dummyEmail, verified: false});
+     alert('Account re-registered! An admin must verify your account before access is granted.');
+     AU.signOut();
+     go('login');
+    }).catch(function(err){
+     alert('Username registration error: '+err.message);
+    });
+   } else {
+    alert(e.message);
+   }
+  });
+ });
+}
+
+function signIn(){
+ var input=$('le').value.trim(), pass=$('lp').value;
+ if(!input||!pass){alert('Enter username and password.');return}
+ var dummyEmail = input.toLowerCase().replace(/[^a-z0-9]/g,'') + '@ledger.local';
+ 
+ DBUS.orderByChild('username').equalTo(input).once('value').then(function(snapshot){
+  if(snapshot.exists()){
+   var userData=Object.values(snapshot.val())[0];
+   if(userData.verified === false){
+    alert('Your account is pending verification by an administrator.');
+    return;
+   }
+   AU.signInWithEmailAndPassword(userData.email, pass).catch(function(err){alert(err.message)});
+  } else {
+   AU.signInWithEmailAndPassword(dummyEmail, pass).catch(function(x){
+    alert('Invalid credentials or account does not exist.');
+   });
+  }
+ });
+}
+
+function requestPinReset(){
+ if(!AU||!AU.currentUser){ alert('Please log in first.'); return; }
+ var uid = AU.currentUser.uid;
+ DBUS.child(uid).once('value', function(uSnap){
+  var uname = (uSnap.val()&&uSnap.val().username) ? uSnap.val().username : 'User';
+  DBPR.child(uid).set({
+   username: uname,
+   status: 'pending',
+   requestedAt: Date.now()
+  }).then(function(){
+   alert('PIN reset request sent to Firebase website! Waiting for admin approval...');
+  });
+ });
+}
+
+function verifyPin(actionCallback){
+ var uid=AU.currentUser?AU.currentUser.uid:null;
+ if(!uid){actionCallback();return;}
+ DBUS.child(uid).child('pin').once('value').then(function(snap){
+  var pin=snap.val()||'';
+  CURRENT_PIN = pin;
+  if(!pin){actionCallback();return;}
+  mdl('<label>Enter Master 4-Digit PIN to Confirm</label><input id="entered_pin" type="password" maxlength="4"><div style="margin-top:10px"><button class="d" onclick="requestPinReset()">Forgot PIN? Request Reset via Firebase</button></div>',function(){
+   var entered=$('entered_pin').value.trim();
+   if(entered===pin){actionCallback();}else{alert('Incorrect PIN!');}
+  });
+ });
+}
+
+function verifyOptionPin(secKey, actionCallback){
+ ST.optionPins = ST.optionPins || {};
+ var reqPin = ST.optionPins[secKey];
+ if(!reqPin){ actionCallback(); return; }
+ mdl('<label>Enter PIN for this Option</label><input id="entered_opt_pin" type="password" maxlength="4"><div style="margin-top:10px"><button class="d" onclick="requestPinReset()">Forgot PIN? Request Reset via Firebase</button></div>',function(){
+  var entered=$('entered_opt_pin').value.trim();
+  if(entered===reqPin){ actionCallback(); } else { alert('Incorrect PIN!'); }
+ });
+}
+
+function signOutUser(){
+ if(AU.currentUser && MY_DEVICE_ID){
+  DEVS.child(AU.currentUser.uid).child(MY_DEVICE_ID).remove();
+ }
+ AU.signOut();
+}
+
+function op(l,c){return l.map(function(x){var v=x[0],t=x[1];return '<option value="'+esc(v)+'"'+(String(v)===String(c)?' selected':'')+'>'+esc(t)+'</option>'}).join('')}
+function setUI(){
+ var fl=[['apiKey','API key'],['authDomain','Auth domain'],['databaseURL','Database URL'],['projectId','Project ID'],['storageBucket','Storage bucket'],['messagingSenderId','Messaging sender ID'],['appId','App ID']],u=AU&&AU.currentUser;
+ var h = '<h1>Settings</h1><div class="card"><h2>General Settings</h2><div class="g"><div><label>Business name</label><input value="'+esc(ST.name)+'" onchange="sset(\'name\',this.value.trim()||\'Business Ledger\')"></div><div><label>Theme</label><select onchange="sset(\'theme\',this.value)">'+op([['auto','Auto'],['light','Light'],['dark','Dark']],ST.theme)+'</select></div><div><label>History kept</label><select onchange="sset(\'keep\',+this.value)">'+op([[3,'3 months'],[6,'6 months'],[12,'1 year'],[24,'2 years'],[60,'5 years']],ST.keep)+'</select></div><div><label>Default work bank</label><select onchange="sset(\'bank\',this.value)"><option value="">First in list</option>'+op(BANKS.map(function(b){return[b,b]}),ST.bank)+'</select></div><div><label>Confirm before delete</label><select onchange="sset(\'cf\',this.value===\'1\')">'+op([['1','Yes'],['0','No']],ST.cf===false?'0':'1')+'</select></div></div></div>';
+
+ if(u){
+  h += '<div class="card"><h2>Account &amp; Credentials Security</h2><div class="g"><div><label>New Username</label><input id="st_user"></div><div><label>Master PIN</label><input id="st_pin" type="password" maxlength="4"></div><div><label>New Password</label><input id="st_pass" type="password"></div></div>'+
+  '<div style="margin-top:8px"><label><input type="checkbox" id="logout_others"> Logout all other active devices on password change</label></div>'+
+  '<div class="bar" style="margin-top:12px"><button class="p" onclick="updateProfileSettings()">Update Credentials</button> <button class="d" onclick="requestPinReset()">Request PIN Reset from Firebase</button></div></div>';
+
+  h += '<div class="card"><h2>Custom Option PIN Protection</h2><p class="mut">Set distinct 4-digit PINs for individual menu options (leave empty to disable protection).</p><div class="g">';
+  var sections = [['list','Customer List'],['work','Work Ledger'],['rep','Monthly Report'],['end','Total End Balance'],['set','Settings'],['bk','Backup']];
+  ST.optionPins = ST.optionPins || {};
+  sections.forEach(function(sec){
+   var curPin = ST.optionPins[sec[0]] || '';
+   h += '<div><label>'+sec[1]+' PIN</label><input type="password" maxlength="4" value="'+esc(curPin)+'" placeholder="No PIN" onchange="setCustomOptionPin(\''+sec[0]+'\', this.value.trim())"></div>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="card"><h2>Active Devices &amp; Online Users</h2><div id="dev_list" class="mut">Loading active sessions...</div></div>';
+  setTimeout(loadDeviceSessions, 50);
+
+  h += '<div class="card"><h2>User Verification &amp; Management</h2><div id="user_list" class="mut">Loading registered users...</div></div>';
+  setTimeout(loadUserVerifications, 50);
+ }
+
+ h += '<div class="card"><h2>Data &amp; Printing</h2><div class="bar"><button onclick="exportJ()">Download backup file</button><button onclick="$(\'imf\').click()">Restore from file</button><input id="imf" type="file" accept=".json,application/json" style="display:none" onchange="importJ(this)"><button onclick="go(\'prn\')">Print center</button><button class="d" onclick="clearAll()">Erase all data</button></div></div>';
+ return h;
+}
+
+function setCustomOptionPin(secKey, pinVal){
+ ST.pins = ST.pins || {};
+ ST.optionPins = ST.optionPins || {};
+ if(pinVal){
+  ST.optionPins[secKey] = pinVal;
+  ST.pins[secKey] = true;
+ } else {
+  delete ST.optionPins[secKey];
+  delete ST.pins[secKey];
+ }
+ sset('optionPins', ST.optionPins);
+ sset('pins', ST.pins);
+ alert('PIN updated for option!');
+}
+
+function updateProfileSettings(){
+ verifyPin(function(){
+  var user=$('st_user').value.trim(), pin=$('st_pin').value.trim(), pass=$('st_pass').value, uid=AU.currentUser.uid;
+  var logoutOthers = $('logout_others').checked;
+  if(user){DBUS.child(uid).update({username:user, email: user.toLowerCase().replace(/[^a-z0-9]/g,'')+'@ledger.local'});}
+  if(pin){DBUS.child(uid).update({pin:pin});}
+  if(pass){
+   AU.currentUser.updatePassword(pass).then(function(){
+    if(logoutOthers){
+     DEVS.child(uid).once('value', function(snap){
+      snap.forEach(function(dSnap){
+       if(dSnap.key !== MY_DEVICE_ID) DEVS.child(uid).child(dSnap.key).remove();
+      });
+     });
+    }
+    alert('Password updated successfully!');
+   }).catch(function(e){alert('Password update error: '+e.message);});
+  } else {
+   alert('Credentials updated!');
+  }
+  render();
+ });
+}
+
+function loadDeviceSessions(){
+ var el = $('dev_list'); if(!el || !DEVS) return;
+ DEVS.on('value', function(snap){
+  if(!snap.exists()){ el.innerHTML = 'No active sessions found.'; return; }
+  var html = '';
+  snap.forEach(function(userSnap){
+   var uid = userSnap.key;
+   userSnap.forEach(function(childSnap){
+    var d = childSnap.val();
+    var isMe = (AU.currentUser && uid === AU.currentUser.uid && childSnap.key === MY_DEVICE_ID);
+    var isOnline = d.online;
+    var uname = d.username || 'User';
+    var lastOnlineStr = d.lastSeen ? new Date(d.lastSeen).toLocaleString() : 'Unknown';
+    html += '<div class="row" style="cursor:default"><div><b>User: '+esc(uname)+'</b> '+(isMe?'<small class="mut">(This Device)</small>':'')+' <span class="badge '+(isOnline?'badge-on':'badge-off')+'">'+(isOnline?'Online':'Offline')+'</span><div class="mut">'+(isOnline?'Currently active':'Last online: '+lastOnlineStr)+'</div></div>'+
+    (isMe?'':'<button class="d" onclick="revokeDevice(\''+uid+'\',\''+childSnap.key+'\')">Log out</button>')+'</div>';
+   });
+  });
+  el.innerHTML = html || 'No active sessions found.';
+ });
+}
+
+function revokeDevice(userUid, devKey){
+ verifyPin(function(){
+  DEVS.child(userUid).child(devKey).remove();
+ });
+}
+
+function loadUserVerifications(){
+ var el = $('user_list'); if(!el) return;
+ DBUS.once('value', function(snap){
+  if(!snap.exists()){ el.innerHTML = 'No registered users.'; return; }
+  var html = '';
+  snap.forEach(function(childSnap){
+   var u = childSnap.val();
+   var uid = childSnap.key;
+   var isVerified = u.verified !== false;
+   html += '<div class="row" style="cursor:default"><div><b>'+esc(u.username)+'</b> <span class="badge '+(isVerified?'badge-on':'badge-off')+'">'+(isVerified?'Verified':'Pending Verification')+'</span></div>'+
+   '<div><button onclick="toggleVerification(\''+uid+'\','+(!isVerified)+')">'+(isVerified?'Unverify':'Verify & Approve')+'</button> <button class="d" onclick="deleteUserRecord(\''+uid+'\')">Delete User</button></div></div>';
+  });
+  el.innerHTML = html;
+ });
+}
+
+function toggleVerification(targetUid, setVerified){
+ verifyPin(function(){
+  DBUS.child(targetUid).update({verified: setVerified}).then(function(){
+   loadUserVerifications();
+  });
+ });
+}
+
+function deleteUserRecord(targetUid){
+ verifyPin(function(){
+  yes('Delete this user account record? This will allow the username to be registered again.', function(){
+   DBUS.child(targetUid).remove().then(function(){
+    DEVS.child(targetUid).remove();
+    alert('User account deleted successfully. Username is now available for new registration.');
+    loadUserVerifications();
+   });
+  });
+ });
+}
+
+function saveFB(){var o={};['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'].forEach(function(k){o[k]=$('fb_'+k).value.trim()});
+ if(!o.apiKey||!o.databaseURL||!o.projectId||!o.appId){alert('API key, Database URL, Project ID and App ID are required.');return}
+ if(!/^https:\/\//.test(o.databaseURL)){alert('Database URL must start with https://');return}ST.fb=o;sst();location.reload()}
+function resetFB(){mdl('<p>Restore the original Firebase details?</p>',function(){ST.fb=JSON.parse(JSON.stringify(FBD));sst();location.reload()})}
+function syncNow(){if(!AU||!AU.currentUser){alert('Sign in first.');return}save();clearTimeout(TM);push()}
+function pullNow(){if(!DB||!AU.currentUser){alert('Sign in first.');return}DB.once('value').then(function(sn){var d=sn.val();if(!d||!d.json){alert('Nothing in the cloud yet.');return}mdl('<p>Replace this device\'s data with the cloud copy?</p>',function(){if(adopt(d)){setSY('Synced');go('home')}})}).catch(function(e){alert(e.message)})}
+function exportJ(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='ledger-backup-'+T()+'.json';document.body.appendChild(a);a.click();a.remove()}
+function importJ(i){var f=i.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var d;try{d=JSON.parse(r.result);if(!d.customers)throw 0}catch(x){alert('That file is not a valid backup.');return}mdl('<p>Replace all current data with this file?</p>',function(){S=d;norm();log('Restored from file');go('home')})};r.readAsText(f);i.value=''}
+function clearAll(){mdl('<p>Erase ALL data on this device and in the cloud? This cannot be undone.</p>',function(){S={customers:[],sbd:[],sdh:[],work:[],history:[]};norm();log('Erased all data');go('home')})}
+function pset(k,v){PV[k]=v;if(k==='k')PV.p='';render()}
+function prnUI(){var w=PV.w,ps=L(PV.k),d=function(l,k){return '<div><label>'+l+'</label><input type="date" value="'+PV[k]+'" onchange="PV.'+k+'=this.value"></div>'};
+ return '<h1>Print</h1><div class="card"><div class="g"><div><label>What to print</label><select onchange="pset(\'w\',this.value)">'+op([['ledger','Ledger (name or all)'],['bal','Balances list'],['end','Total End Balance'],['rep','Monthly report'],['work','Work of a day'],['hist','History']],w)+'</select></div>'+
+ (/ledger|bal|rep/.test(w)?'<div><label>Section</label><select onchange="pset(\'k\',this.value)">'+op([['c','Customer'],['b','Supplier BD'],['h','Supplier DH']],PV.k)+'</select></div>':'')+
+ (w==='ledger'?'<div><label>Name</label><select onchange="PV.p=this.value">'+op([['','All']].concat(ps.map(function(p){return[p.id,p.name]})),PV.p)+'</select></div>':'')+
+ (/ledger|hist/.test(w)?d('From','from')+d('To','to'):'')+(w==='rep'?'<div><label>Month</label><input type="month" value="'+PV.m+'" onchange="PV.m=this.value"></div>':'')+
+ (w==='work'?d('Date','d')+'<div><label>Type</label><select onchange="PV.t=this.value">'+op([['c','Customer'],['s','Supplier BD']],PV.t)+'</select></div>':'')+
+ '</div><br><button class="p" onclick="doPrint()">🖨 Print</button></div><p class="mut">Tip: the 🖨 button at the top prints whatever screen you are on.</p>'}
+function printNow(t,h){var d=document.createElement('div');d.innerHTML=h;d.querySelectorAll('button,input,select,textarea,label').forEach(function(e){e.remove()});
+ $('pr').innerHTML='<div class="ph"><h2>'+esc(ST.name)+'</h2><div style="text-align:right"><b>'+esc(t)+'</b><br>Printed '+new Date().toLocaleString()+'</div></div>'+d.innerHTML;document.title=ST.name+' - '+t;window.print()}
+window.addEventListener('afterprint',function(){$('pr').innerHTML='';document.title=ST.name});
+function pr0(){var m=document.querySelector('main');if(!m){alert('Nothing to print here.');return}var h=m.querySelector('h1');printNow(h?h.textContent:'Report',m.innerHTML)}
+function dr(R,a,b){return R.filter(function(x){return(!a||x.date>=a)&&(!b||x.date<=b)})}
+function doPrint(){var w=PV.w,k=PV.k,o=[V.v,V.k,V.m,V.q,V.t,V.d],h='',t='';
+ if(w==='ledger'){t=TT[k]+' ledger';var ps=PV.p?[P(k,PV.p)]:L(k);if(!ps[0]){alert('Nothing to print.');return}h=ps.map(function(p){return '<h3>'+esc(p.name)+' <small>'+esc(p.phone)+' '+esc(p.desc)+'</small></h3>'+tbl(k,dr(rows(k,p),PV.from,PV.to),false,p.id)+'<p><b>Balance: '+f(total(k,p))+' '+U[k]+'</b></p>'}).join('')}
+ else if(w==='bal'||w==='end'){if(w==='end')k='c';t=w==='end'?'Total End Balance':TT[k]+' balances';var s=0;h='<div class="w"><table><tr><th>Name</th><th>Phone</th><th>Description</th><th>Balance '+U[k]+'</th></tr>'+L(k).map(function(p){var b=total(k,p);s+=b;return '<tr><td>'+esc(p.name)+'</td><td>'+esc(p.phone)+'</td><td>'+esc(p.desc)+'</td><td>'+f(b)+'</td></tr>'}).join('')+'<tr><th>Total</th><th></th><th></th><th>'+f(s)+'</th></tr></table></div>'}
+ else if(w==='rep'){t=TT[k]+' report '+PV.m;V.v='rep';V.k=k;V.m=PV.m;V.q='';h=LH()}
+ else if(w==='work'){t='Work '+(PV.t==='c'?'Customer':'Supplier BD')+' '+PV.d;V.v='work';V.t=PV.t;V.d=PV.d;V.q='';h=LH()}
+ else{t='History';h=S.history.filter(function(x){var d=x.t.slice(0,10);return(!PV.from||d>=PV.from)&&(!PV.to||d<=PV.to)}).map(function(x){return '<div class="h"><span class="mut">'+new Date(x.t).toLocaleString()+'</span> '+esc(x.x)+'</div>'}).join('')||'No changes.'}
+ V.v=o[0];V.k=o[1];V.m=o[2];V.q=o[3];V.t=o[4];V.d=o[5];printNow(t,h)}
+document.title=ST.name;
+prune();fbInit();
+</script></body></html>
